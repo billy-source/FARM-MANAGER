@@ -179,14 +179,7 @@ const Dashboard = () => {
                   <span>{currentUser.email}</span> {/* Display user's email */}
                 </div>
               )}
-              <button
-                onClick={refreshData}
-                disabled={refreshing}
-                className="bg-gradient-to-r from-green-600 to-green-700 text-white px-6 py-3 rounded-xl hover:from-green-700 hover:to-green-800 transition-all flex items-center space-x-2 disabled:opacity-50 transform hover:scale-105 shadow-lg"
-              >
-                <RefreshCw className={`h-5 w-5 ${refreshing ? 'animate-spin' : ''}`} />
-                <span className="font-semibold">Refresh</span>
-              </button>
+              
               {currentUser && ( 
                 <button
                   onClick={logout}
