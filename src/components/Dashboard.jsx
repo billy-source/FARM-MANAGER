@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  DollarSign, 
-  TrendingUp, 
-  Cloud, 
+import {
+  DollarSign,
+  TrendingUp,
+  Cloud,
   Sprout,
   BarChart3,
   Activity,
   RefreshCw,
   Calculator,
-  Plus
+  Plus,
+  LogOut, // <--- NEW: Import LogOut icon
+  User // <--- NEW: Import User icon
 } from 'lucide-react';
 import { localStorageService } from '../services/localStorageService';
 import { weatherService } from '../services/weatherService';
@@ -17,6 +19,11 @@ import ExpenseList from './ExpenseList';
 import ExpenseChart from './ExpenseChart';
 import WeatherCard from './WeatherCard';
 import FarmCalculator from './FarmCalculator';
+// ***************************************************************
+// NEW IMPORTS FOR AUTHENTICATION
+import { useAuth } from '../contexts/AuthContext'; // Adjust path as needed
+import AuthForm from './Auth/AuthForm'; // Adjust path as needed
+// ***************************************************************
 
 const Dashboard = () => {
   const [expenses, setExpenses] = useState([]);
@@ -26,15 +33,36 @@ const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [refreshing, setRefreshing] = useState(false);
 
+  // ***************************************************************
+  // NEW: Get currentUser and logout function from AuthContext
+  const { currentUser, logout } = useAuth();
+  // ***************************************************************
+
   // Load data on component mount
   useEffect(() => {
-    loadData();
-  }, []);
+    // ***************************************************************
+    // NEW: Only load data if a user is logged in
+    if (currentUser) {
+      loadData();
+    } else {
+      // If no user, ensure loading is set to false so LoginForm can be displayed
+      setLoading(false);
+      // Optionally clear data if user logs out or isn't logged in initially
+      setExpenses([]);
+      setWeather(null);
+      setForecast([]);
+    }
+    // ***************************************************************
+  }, [currentUser]); // Dependency: Re-run when currentUser changes (login/logout)
 
   const loadData = async () => {
     setLoading(true);
     try {
       // Load expenses from localStorage
+      // ***************************************************************
+      // FUTURE IMPROVEMENT: If using Firebase, this would be where you fetch from Firestore
+      // For now, it stays localStorage but remember to scope data by userId if you move to Firebase.
+      // ***************************************************************
       const expensesData = localStorageService.getExpenses();
       setExpenses(expensesData);
 
@@ -48,6 +76,9 @@ const Dashboard = () => {
       setForecast(forecastData);
     } catch (error) {
       console.error('Error loading data:', error);
+      // ***************************************************************
+      // NEW: Handle specific errors, e.g., if weather service fails
+      // ***************************************************************
     } finally {
       setLoading(false);
     }
@@ -61,6 +92,11 @@ const Dashboard = () => {
 
   const handleAddExpense = async (expenseData) => {
     try {
+      // ***************************************************************
+      // FUTURE IMPROVEMENT: If using Firebase, you'd add userId here
+      // and use your Firestore hook's addItem function.
+      // const newExpense = await addExpenseToFirestore({ ...expenseData, userId: currentUser.uid });
+      // ***************************************************************
       const newExpense = localStorageService.addExpense(expenseData);
       setExpenses(prev => [newExpense, ...prev]);
     } catch (error) {
@@ -71,6 +107,10 @@ const Dashboard = () => {
 
   const handleDeleteExpense = async (id) => {
     try {
+      // ***************************************************************
+      // FUTURE IMPROVEMENT: If using Firebase, you'd use your Firestore hook's deleteItem function.
+      // await deleteItemFromFirestore(id);
+      // ***************************************************************
       localStorageService.deleteExpense(id);
       setExpenses(prev => prev.filter(expense => expense.id !== id));
     } catch (error) {
@@ -101,8 +141,8 @@ const Dashboard = () => {
     <button
       onClick={() => onClick(id)}
       className={`flex items-center space-x-3 px-6 py-3 rounded-xl font-semibold transition-all transform hover:scale-105 ${
-        active 
-          ? 'bg-gradient-to-r from-green-600 to-green-700 text-white shadow-lg' 
+        active
+          ? 'bg-gradient-to-r from-green-600 to-green-700 text-white shadow-lg'
           : 'text-gray-600 hover:text-green-600 hover:bg-green-50'
       }`}
     >
@@ -111,6 +151,18 @@ const Dashboard = () => {
     </button>
   );
 
+  // ***************************************************************
+  // NEW: Render AuthForm if no current user
+  if (!currentUser) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-purple-50 flex items-center justify-center">
+        <AuthForm />
+      </div>
+    );
+  }
+  // ***************************************************************
+
+  // Existing loading state (for when a user IS logged in but data is still loading)
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-purple-50 flex items-center justify-center">
@@ -137,14 +189,34 @@ const Dashboard = () => {
                 <p className="text-gray-600 text-lg">Track expenses, monitor weather, and optimize your farming operations</p>
               </div>
             </div>
-            <button
-              onClick={refreshData}
-              disabled={refreshing}
-              className="bg-gradient-to-r from-green-600 to-green-700 text-white px-6 py-3 rounded-xl hover:from-green-700 hover:to-green-800 transition-all flex items-center space-x-2 disabled:opacity-50 transform hover:scale-105 shadow-lg"
-            >
-              <RefreshCw className={`h-5 w-5 ${refreshing ? 'animate-spin' : ''}`} />
-              <span className="font-semibold">Refresh</span>
-            </button>
+            {/* *************************************************************** */}
+            {/* NEW: User Info and Logout button in header */}
+            <div className="flex items-center space-x-4">
+              {currentUser && (
+                <div className="flex items-center space-x-2 text-gray-700 font-medium">
+                  <User className="h-5 w-5" />
+                  <span>{currentUser.email}</span> {/* Display user's email */}
+                </div>
+              )}
+              <button
+                onClick={refreshData}
+                disabled={refreshing}
+                className="bg-gradient-to-r from-green-600 to-green-700 text-white px-6 py-3 rounded-xl hover:from-green-700 hover:to-green-800 transition-all flex items-center space-x-2 disabled:opacity-50 transform hover:scale-105 shadow-lg"
+              >
+                <RefreshCw className={`h-5 w-5 ${refreshing ? 'animate-spin' : ''}`} />
+                <span className="font-semibold">Refresh</span>
+              </button>
+              {currentUser && ( // Only show logout if a user is logged in
+                <button
+                  onClick={logout}
+                  className="bg-red-500 text-white px-6 py-3 rounded-xl hover:bg-red-600 transition-all flex items-center space-x-2 transform hover:scale-105 shadow-lg"
+                >
+                  <LogOut className="h-5 w-5" />
+                  <span className="font-semibold">Logout</span>
+                </button>
+              )}
+            </div>
+            {/* *************************************************************** */}
           </div>
         </div>
       </header>
@@ -152,40 +224,40 @@ const Dashboard = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Navigation Tabs */}
         <div className="flex space-x-2 mb-8 overflow-x-auto bg-white p-2 rounded-2xl shadow-lg">
-          <TabButton 
-            id="overview" 
-            label="Overview" 
-            icon={BarChart3} 
-            active={activeTab === 'overview'} 
-            onClick={setActiveTab} 
+          <TabButton
+            id="overview"
+            label="Overview"
+            icon={BarChart3}
+            active={activeTab === 'overview'}
+            onClick={setActiveTab}
           />
-          <TabButton 
-            id="expenses" 
-            label="Add Expense" 
-            icon={Plus} 
-            active={activeTab === 'expenses'} 
-            onClick={setActiveTab} 
+          <TabButton
+            id="expenses"
+            label="Add Expense"
+            icon={Plus}
+            active={activeTab === 'expenses'}
+            onClick={setActiveTab}
           />
-          <TabButton 
-            id="analytics" 
-            label="Analytics" 
-            icon={TrendingUp} 
-            active={activeTab === 'analytics'} 
-            onClick={setActiveTab} 
+          <TabButton
+            id="analytics"
+            label="Analytics"
+            icon={TrendingUp}
+            active={activeTab === 'analytics'}
+            onClick={setActiveTab}
           />
-          <TabButton 
-            id="weather" 
-            label="Weather" 
-            icon={Cloud} 
-            active={activeTab === 'weather'} 
-            onClick={setActiveTab} 
+          <TabButton
+            id="weather"
+            label="Weather"
+            icon={Cloud}
+            active={activeTab === 'weather'}
+            onClick={setActiveTab}
           />
-          <TabButton 
-            id="calculator" 
-            label="Farm Calculator" 
-            icon={Calculator} 
-            active={activeTab === 'calculator'} 
-            onClick={setActiveTab} 
+          <TabButton
+            id="calculator"
+            label="Farm Calculator"
+            icon={Calculator}
+            active={activeTab === 'calculator'}
+            onClick={setActiveTab}
           />
         </div>
 
@@ -250,8 +322,8 @@ const Dashboard = () => {
             {/* Weather and Recent Expenses */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               <WeatherCard weather={weather} forecast={forecast} />
-              <ExpenseList 
-                expenses={expenses.slice(0, 5)} 
+              <ExpenseList
+                expenses={expenses.slice(0, 5)}
                 onDeleteExpense={handleDeleteExpense}
                 totalAmount={totalExpenses}
               />
@@ -270,8 +342,8 @@ const Dashboard = () => {
         {activeTab === 'analytics' && (
           <div className="space-y-8">
             <ExpenseChart expenses={expenses} />
-            <ExpenseList 
-              expenses={expenses} 
+            <ExpenseList
+              expenses={expenses}
               onDeleteExpense={handleDeleteExpense}
               totalAmount={totalExpenses}
             />

@@ -1,4 +1,4 @@
-const WEATHER_API_KEY = 'your-openweathermap-api-key'; // Replace with your API key
+const WEATHER_API_KEY = 'your-openweathermap-api-key'; 
 const BASE_URL = 'https://api.openweathermap.org/data/2.5';
 
 export const weatherService = {
@@ -27,7 +27,7 @@ export const weatherService = {
       };
     } catch (error) {
       console.error('Error fetching weather:', error);
-      // Return mock data as fallback
+      
       return {
         temperature: 24,
         humidity: 65,
