@@ -260,7 +260,7 @@ const Dashboard = () => {
                     <p className="text-3xl font-bold text-green-600">${monthlyExpenses.toLocaleString()}</p>
                     <p className="text-xs text-gray-500 mt-2">Current month</p>
                   </div>
-                  <div className="p-4 rounded-2xl bg-gradient-to-r from-green-100 to-green-200">
+                  <div className="p-4 rounded-2xl bg-gray-100">
                     <TrendingUp className="h-8 w-8 text-green-600" />
                   </div>
                 </div>
