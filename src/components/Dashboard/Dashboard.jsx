@@ -139,7 +139,7 @@ const Dashboard = () => {
                 <Sprout className="h-8 w-8 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">FarmPro Dashboard</h1>
+                <h1 className="text-2xl font-bold text-gray-900">Farm manager Dashboard</h1>
                 <p className="text-sm text-gray-500">Welcome back, {currentUser?.displayName}</p>
               </div>
             </div>
@@ -150,7 +150,7 @@ const Dashboard = () => {
               >
                 <Plus className="h-4 w-4" />
                 <span>Quick Add</span>
-                <span className="text-xs opacity-75">(Ctrl+E)</span>
+                <span className="text-xs opacity-75"></span>
               </button>
               <div className="flex items-center space-x-2">
                 <div className="p-2 bg-gray-100 rounded-lg">

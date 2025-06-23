@@ -9,8 +9,8 @@ import {
   RefreshCw,
   Calculator,
   Plus,
-  LogOut, // <--- NEW: Import LogOut icon
-  User // <--- NEW: Import User icon
+  LogOut, 
+  User 
 } from 'lucide-react';
 import { localStorageService } from '../services/localStorageService';
 import { weatherService } from '../services/weatherService';
@@ -19,11 +19,9 @@ import ExpenseList from './ExpenseList';
 import ExpenseChart from './ExpenseChart';
 import WeatherCard from './WeatherCard';
 import FarmCalculator from './FarmCalculator';
-// ***************************************************************
-// NEW IMPORTS FOR AUTHENTICATION
-import { useAuth } from '../contexts/AuthContext'; // Adjust path as needed
-import AuthForm from './Auth/AuthForm'; // Adjust path as needed
-// ***************************************************************
+
+import { useAuth } from '../contexts/AuthContext'; 
+import AuthForm from './Auth/AuthForm'; 
 
 const Dashboard = () => {
   const [expenses, setExpenses] = useState([]);
@@ -33,40 +31,35 @@ const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [refreshing, setRefreshing] = useState(false);
 
-  // ***************************************************************
-  // NEW: Get currentUser and logout function from AuthContext
+  
   const { currentUser, logout } = useAuth();
-  // ***************************************************************
+ 
 
-  // Load data on component mount
+  
   useEffect(() => {
-    // ***************************************************************
-    // NEW: Only load data if a user is logged in
+   
+    
     if (currentUser) {
       loadData();
     } else {
-      // If no user, ensure loading is set to false so LoginForm can be displayed
+     
       setLoading(false);
-      // Optionally clear data if user logs out or isn't logged in initially
+      
       setExpenses([]);
       setWeather(null);
       setForecast([]);
     }
-    // ***************************************************************
-  }, [currentUser]); // Dependency: Re-run when currentUser changes (login/logout)
+    
+  }, [currentUser]);
 
   const loadData = async () => {
     setLoading(true);
     try {
-      // Load expenses from localStorage
-      // ***************************************************************
-      // FUTURE IMPROVEMENT: If using Firebase, this would be where you fetch from Firestore
-      // For now, it stays localStorage but remember to scope data by userId if you move to Firebase.
-      // ***************************************************************
+      
       const expensesData = localStorageService.getExpenses();
       setExpenses(expensesData);
 
-      // Load weather data
+      
       const [weatherData, forecastData] = await Promise.all([
         weatherService.getCurrentWeather(),
         weatherService.getForecast()
@@ -76,9 +69,7 @@ const Dashboard = () => {
       setForecast(forecastData);
     } catch (error) {
       console.error('Error loading data:', error);
-      // ***************************************************************
-      // NEW: Handle specific errors, e.g., if weather service fails
-      // ***************************************************************
+     
     } finally {
       setLoading(false);
     }
@@ -92,11 +83,7 @@ const Dashboard = () => {
 
   const handleAddExpense = async (expenseData) => {
     try {
-      // ***************************************************************
-      // FUTURE IMPROVEMENT: If using Firebase, you'd add userId here
-      // and use your Firestore hook's addItem function.
-      // const newExpense = await addExpenseToFirestore({ ...expenseData, userId: currentUser.uid });
-      // ***************************************************************
+      
       const newExpense = localStorageService.addExpense(expenseData);
       setExpenses(prev => [newExpense, ...prev]);
     } catch (error) {
@@ -107,10 +94,7 @@ const Dashboard = () => {
 
   const handleDeleteExpense = async (id) => {
     try {
-      // ***************************************************************
-      // FUTURE IMPROVEMENT: If using Firebase, you'd use your Firestore hook's deleteItem function.
-      // await deleteItemFromFirestore(id);
-      // ***************************************************************
+    
       localStorageService.deleteExpense(id);
       setExpenses(prev => prev.filter(expense => expense.id !== id));
     } catch (error) {
@@ -119,7 +103,7 @@ const Dashboard = () => {
     }
   };
 
-  // Calculate expense statistics
+ 
   const totalExpenses = expenses.reduce((sum, expense) => sum + expense.amount, 0);
   const monthlyExpenses = expenses.filter(expense => {
     const expenseDate = new Date(expense.date);
@@ -151,8 +135,7 @@ const Dashboard = () => {
     </button>
   );
 
-  // ***************************************************************
-  // NEW: Render AuthForm if no current user
+  
   if (!currentUser) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-purple-50 flex items-center justify-center">
@@ -160,9 +143,7 @@ const Dashboard = () => {
       </div>
     );
   }
-  // ***************************************************************
-
-  // Existing loading state (for when a user IS logged in but data is still loading)
+  
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-purple-50 flex items-center justify-center">
@@ -185,7 +166,7 @@ const Dashboard = () => {
                 <Sprout className="h-10 w-10 text-white" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-gray-900">Farm Management Platform</h1>
+                <h1 className="text-3xl font-bold text-gray-900">Farm Manager Platform</h1>
                 <p className="text-gray-600 text-lg">Track expenses, monitor weather, and optimize your farming operations</p>
               </div>
             </div>
@@ -206,7 +187,7 @@ const Dashboard = () => {
                 <RefreshCw className={`h-5 w-5 ${refreshing ? 'animate-spin' : ''}`} />
                 <span className="font-semibold">Refresh</span>
               </button>
-              {currentUser && ( // Only show logout if a user is logged in
+              {currentUser && ( 
                 <button
                   onClick={logout}
                   className="bg-red-500 text-white px-6 py-3 rounded-xl hover:bg-red-600 transition-all flex items-center space-x-2 transform hover:scale-105 shadow-lg"
