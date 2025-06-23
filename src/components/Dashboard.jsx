@@ -273,7 +273,7 @@ const Dashboard = () => {
                     <p className="text-3xl font-bold text-purple-600">${weeklyExpenses.toLocaleString()}</p>
                     <p className="text-xs text-gray-500 mt-2">Last 7 days</p>
                   </div>
-                  <div className="p-4 rounded-2xl bg-gradient-to-r from-purple-100 to-purple-200">
+                  <div className="p-4 rounded-2xl bg-yellow-500">
                     <BarChart3 className="h-8 w-8 text-purple-600" />
                   </div>
                 </div>

@@ -52,7 +52,7 @@ const ExpenseChart = ({ expenses }) => {
       {/* Monthly Spending Chart */}
       <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
         <div className="flex items-center mb-8">
-          <div className="p-3 bg-green-100 rounded-xl mr-4">
+          <div className="p-3 bg-yellow-100 rounded-xl mr-4">
             <TrendingUp className="h-6 w-6 text-green-600" />
           </div>
           <div>
@@ -114,7 +114,7 @@ const ExpenseChart = ({ expenses }) => {
                 <Tooltip 
                   formatter={(value) => [`$${value}`, 'Amount']}
                   contentStyle={{ 
-                    backgroundColor: '#fff', 
+                    backgroundColor: '#', 
                     border: '1px solid #e5e7eb',
                     borderRadius: '12px',
                     boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
