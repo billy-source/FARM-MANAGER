@@ -1,4 +1,4 @@
-const WEATHER_API_KEY = 'your-openweathermap-api-key'; 
+const WEATHER_API_KEY = '2e5d29af48a5c73d45c216f33813ddab'; 
 const BASE_URL = 'https://api.openweathermap.org/data/2.5';
 
 export const weatherService = {
